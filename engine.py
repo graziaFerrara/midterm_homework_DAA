@@ -1,6 +1,7 @@
 import os
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
+from max_oriented_heap import MaxOrientedPriorityQueue
 from trie import CompressedTrie
 
 class Element:
@@ -12,7 +13,7 @@ class Element:
 
     def __init__(self, website, name, content = None, url = None):
 
-        self._name = ElementName(name)
+        self._name = name.swapcase()
         self._url = url
 
         if content is not None : 
@@ -36,7 +37,7 @@ class Element:
         """
         Returns the name of the Element.
         """
-        return self._name._elName
+        return self._name
 
     def getUrl(self):
         """Returns the url"""
@@ -54,8 +55,8 @@ class Element:
         """
         If the current Element is a directory, this method inserts a new Element into it.
         """
-        if self._dir: self._content[elem._name] = elem
-        else: raise NotADirectoryException(self._name._elName + " is not a directory.")
+        if self._dir: self._content[elem._name.swapcase()] = elem
+        else: raise NotADirectoryException(self._name + " is not a directory.")
 
     def isDir(self):
         """
@@ -68,7 +69,7 @@ class Element:
         If the current Element is a page, this method updates its text content field.
         """
         if not self._dir: self._content = content
-        else: raise NotAPageException(self._name._elName, + " is not a page.")
+        else: raise NotAPageException(self._name, + " is not a page.")
 
     def setUrl(self, url):
         self._url = url
@@ -90,14 +91,6 @@ class Element:
 
     def __ge__(self,other):
         return self._url >= other._url
-        
-class ElementName(str):
-
-    def __init__(self, elName):
-        self._elName = elName
-
-    def __lt__(self, other):
-        return self._elName.swapcase() < other._elName.swapcase()
 
 class IndexNotFoundException(Exception):
     pass
@@ -228,14 +221,14 @@ class WebSite:
         """
         Returns a string showing the structure of the website.
         """ 
-        return self._root.getName() + '\n' + self.__composeSiteString(self._root, 3)
+        return self._root.getName().swapcase() + '\n' + self.__composeSiteString(self._root, 3)
 
     def insertPage(self, url, content):
         """
         It saves and returns a new page of the website, where url is a string representing the url of 
         the page, and content is a string representing the text contained in the page.
         """
-        path = url.split('/') # split the path of the page
+        path = url.swapcase().split('/') # split the path of the page
         # the url hostname is not the one of the website
         if path[0] != self._root.getName(): 
             raise NotValidURLException(url + " is not valid for this host.")
@@ -314,6 +307,7 @@ class SearchEngine:
         self._invertedIndex = InvertedIndex()
         self._database = ChainHashMap()
 
+        currDir = os.getcwd()
         os.chdir(namedir)
 
         for file in os.listdir():
@@ -330,10 +324,29 @@ class SearchEngine:
                         page = self._database[hostname].insertPage(firstLine[:-1], content)
                     self._invertedIndex.addPage(page)
 
+        os.chdir(currDir)
+
     def search(self, keyword, k):
         """
         Searches the k web pages with the maximum number of occurrences of the searched keyword. It returns a string s built as follows: for 
         each of these k pages sorted in descending order of occurrences, the site strings (as defined above) of the site hosting that page is 
         added to s, unless this site has been already inserted.
         """
-        pass
+        dict = {}                                   # O(1)
+        s = ""
+        list = self._invertedIndex.getList(keyword) # O(m)
+        maxHeap = MaxOrientedPriorityQueue(list)    # O(n•log(k))
+        for i in range(k):       #
+            k,v = maxHeap.remove_max()              # O(k•log(k))
+            site = v.getWebSite()
+            try:
+                if dict[site] > 1: 
+                    dict[site] += 1
+            except KeyError:
+                dict[site] = 1
+                s += site.getSiteString()
+        return s[:-1]
+        
+
+
+    

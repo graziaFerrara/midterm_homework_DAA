@@ -104,7 +104,6 @@ class CompressedTrie:
         else:
             # partial match between lable and word until the computed index
             return None
-
     #-------------------------- public accessors --------------------------
     def root(self):
         """Return Position representing the trie's root (or None if empty)."""
