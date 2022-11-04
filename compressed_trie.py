@@ -92,8 +92,9 @@ class CompressedTrie:
         """
         index = -1
         for k_child, v_child in node._children.items():
-            index = self._longestCommonPrefix(k_child, word)
-            if index != -1 : break
+            if k_child[0] == word[0]:
+                index = self._longestCommonPrefix(k_child, word)
+                if index != -1 : break
         # let's check the index value!
         if index == len(word) - 1:
             # word completely matched in v_child
@@ -179,8 +180,9 @@ class CompressedTrie:
         """
         index = -1 # O(1)
         for k_child, v_child in node._children.items(): # worst case O(d) -> each node has at least two children and at most d (where d is the size of the alphabet) children
-            index = self._longestCommonPrefix(k_child, word) # O(m)
-            if index != -1 : break # O(1)
+            if k_child[0] == word[0]:
+                index = self._longestCommonPrefix(k_child, word) # O(m)
+                if index != -1 : break # O(1)
         # let's check the index value!
         if index == -1: # O(1)
             # no match found -> create a new node and link it to node, then return
