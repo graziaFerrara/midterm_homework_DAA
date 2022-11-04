@@ -3,6 +3,7 @@ from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
 from max_oriented_heap import MaxOrientedPriorityQueue
 from compressed_trie import CompressedTrie
+from compressed_trie_2 import CompressedTrie2
 
 class Element:
     """ 
@@ -266,7 +267,7 @@ class InvertedIndex:
         """
         Creates a new empty InvertedIndex.
         """
-        self._trie = CompressedTrie()
+        self._trie = CompressedTrie2()
 
     def addWord(self, keyword):
         """
