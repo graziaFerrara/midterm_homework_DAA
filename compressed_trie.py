@@ -100,7 +100,7 @@ class CompressedTrie:
         # let's check the index value!
         if index == len(word) - 1:
             # word completely matched in v_child
-            return v_child
+            return v_child._occurrenceList
         elif index == len(k_child) - 1:
             # lable completely matched in v_child
             return self._searchFromNode(v_child,word[index+1:])

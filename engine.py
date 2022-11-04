@@ -282,9 +282,9 @@ class InvertedIndex:
         It takes in input the string keyword, and it returns the corresponding occurrence list. 
         It throws an Exception if there is no occurrence list associated with the string keyword
         """
-        node = self._trie.searchWord(keyword) 
-        if not node._endNode or node is None : raise NOOccurrenceListException("Occurrence list not found!")
-        return node._occurrenceList 
+        list = self._trie.searchWord(keyword) 
+        if list is None : raise NOOccurrenceListException("Occurrence list not found!")
+        return list
 
 class SearchEngine:
 
