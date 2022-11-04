@@ -249,7 +249,8 @@ class WebSite:
             page.setPageContent(content)
         return page
 
-    def getSiteFromPage(self, page):
+    @staticmethod
+    def getSiteFromPage(page):
         """
         Given an Element page returns the WebSite object that page belongs to.
         """
@@ -338,13 +339,13 @@ class SearchEngine:
         each of these k pages sorted in descending order of occurrences, the site strings (as defined above) of the site hosting that page is 
         added to s, unless this site has been already inserted.
         """
-        dict = {}                                   # O(1)
+        dict = ChainHashMap()                       # O(1)
         s = ""
         list = self._invertedIndex.getList(keyword) # O(m)
         maxHeap = MaxOrientedPriorityQueue(list)    # O(n•log(k))
         for i in range(k):       #
             k,v = maxHeap.remove_max()              # O(k•log(k))
-            site = v.getWebSite()
+            site = WebSite.getSiteFromPage(v)
             try:
                 if dict[site] > 1: 
                     dict[site] += 1

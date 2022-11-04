@@ -1,3 +1,5 @@
+from TdP_collections.map.red_black_tree import RedBlackTreeMap
+
 class CompressedTrie:
     """Representation of a compressed trie structure.
 
@@ -17,30 +19,25 @@ class CompressedTrie:
             ----------
                 _children : dictionary
                     Dictionary containing.
-                _parent : _Node
-                    Reference to the parent node of the current node.
                 _endNode : bool
                     Indicates if the node is an end node or not.
                 _occurrenceList : dictionary
                     If the node is an end node then it owns an occurrence list.
         """
 
-        __slots__ = '_children', '_parent', '_endNode' ,'_occurrenceList' # streamline memory usage
+        __slots__ = '_children', '_endNode' ,'_occurrenceList' # streamline memory usage
 
-        def __init__(self, parent = None, endNode = False):
+        def __init__(self, endNode = False):
             """Creates a new node.
 
                 Parameters
                 ----------
-                    parent : _Node | None
-                        Optional reference to the parent node, defaults to None.
                     endNode : bool
                         Indicates if the node is an end node or not.
             """
             self._children = {}
             self._endNode = endNode
-            self._parent = parent
-            self._occurrenceList = {}
+            if self._endNode: self._occurrenceList = {}
 
     #-------------------------- utility methods --------------------------
     def _longestCommonPrefix(self, lable, word):
@@ -72,7 +69,7 @@ class CompressedTrie:
     #-------------------------- trie constructor --------------------------
     def __init__(self):
         """Create an initially empty trie."""
-        self._root = self._Node("")
+        self._root = self._Node()
 
     #-------------------------- private accessors -------------------------
     def _searchFromNode(self, node, word):
@@ -123,50 +120,6 @@ class CompressedTrie:
         return self._searchFromNode(self._root, word + '$')
 
     #-------------------------- private mutators -------------------------
-    def _restructureNodes(self, oldNode, oldLable, index):
-        """Given a node, its associated lable and the index, perform a restructure and return the new created node.
-
-            Parameters
-            ----------
-            oldNode : _Node
-                Node to be restructured.
-            oldLable : str
-                String representing the lable of the old node.
-            index : int
-                Index in which cut the lable, to create distinct two.
-
-            Returns
-            -------
-            newNode : _Node
-                New node to be created.
-        """
-        oldParent = oldNode._parent # get the parent of the old node
-        newNode = self._Node(oldParent, False) # create the newNode
-        del oldParent._children[oldLable] # remove the oldNode from the parent
-        oldParent._children[oldLable[:index+1]] = newNode # connect the oldParent to the newNode
-        newNode._children[oldLable[index+1:]] = oldNode # connect the newNode to the oldNode
-        oldNode._parent = newNode # connect the oldNode to the newNode
-        oldNode._endNode = True # add terminator to the oldNode
-        return newNode
-
-    def _restructureAndAddNode(self, oldNode, oldLable, index, newLable):
-        """Restructure a given node and adds a new one with a given lable.
-        
-            Parameters
-            ----------
-            oldNode : _Node
-                Node which has to be restructured.
-            oldLable : str
-                Lable of the old node which has to be restructured.
-            index : int
-                Index of the last matching character betwwen the lable and the word.
-            newLable : str
-                New lable to be inserted,
-        """
-        # get the node in which insert a new child node
-        node = self._restructureNodes(oldNode, oldLable, index) # O(1)
-        newNode = self._Node(node, True) # create the newNode, O(1)
-        node._children[newLable] = newNode # link node to newNode O(1)
 
     def _insertFromNode (self, node, word):
         """Insert a given word into the trie, starting from node.
@@ -186,7 +139,7 @@ class CompressedTrie:
         # let's check the index value!
         if index == -1: # O(1)
             # no match found -> create a new node and link it to node, then return
-            newNode = self._Node(node, True) # O(1)
+            newNode = self._Node(True) # O(1)
             node._children[word] = newNode # O(1)
         elif index == len(word) - 1: # O(1)
             # word completely matched in v_child, add terminator to it and then return 
@@ -196,7 +149,13 @@ class CompressedTrie:
             self._insertFromNode(v_child,word[index+1:]) # at most m, where m is the length of the word
         else:
             # partial match between lable and word until the computed index, restructure the node, add the new one and then return
-            self._restructureAndAddNode(v_child, k_child, index, word[index+1:]) # O(1)
+            newNode = self._Node(False) # create the newNode
+            del node._children[k_child] # remove the oldNode from the parent
+            node._children[k_child[:index+1]] = newNode # connect the oldParent to the newNode
+            newNode._children[k_child[index+1:]] = v_child # connect the newNode to the oldNode
+            v_child._endNode = True # add terminator to the oldNode
+            anotherNode = self._Node(True) # create the node with the remaining part of the searched word
+            newNode._children[word[index+1:]] = anotherNode # add the node to the newNode's children
         # Total time complexity: O(d•m) in the worst case
 
     #-------------------------- public mutators --------------------------
