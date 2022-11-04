@@ -1,4 +1,4 @@
-from trie import CompressedTrie
+from compressed_trie import CompressedTrie
 
 # t = CompressedTrie()
 # t.insertWord('see')

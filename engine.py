@@ -2,14 +2,15 @@ import os
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
 from max_oriented_heap import MaxOrientedPriorityQueue
-from trie import CompressedTrie
+from compressed_trie import CompressedTrie
+from time import time
 
 class Element:
     """ 
     A class used to model both directories and webpages. 
     """
 
-    __slots__ = ['_name','_content','_dir','_website','_url']
+    __slots__ = ['_name','_content','_website','_url']
 
     def __init__(self, website, name, content = None, url = None):
 
@@ -19,11 +20,9 @@ class Element:
         if content is not None : 
             # page
             self._content = content 
-            self._dir = False
         else:
             # directory
             self._content = RedBlackTreeMap()
-            self._dir = True
 
         self._website = website
 
@@ -55,20 +54,14 @@ class Element:
         """
         If the current Element is a directory, this method inserts a new Element into it.
         """
-        if self._dir: self._content[elem._name.swapcase()] = elem
+        if type(self.getContent()) == RedBlackTreeMap: self._content[elem._name.swapcase()] = elem
         else: raise NotADirectoryException(self._name + " is not a directory.")
-
-    def isDir(self):
-        """
-        Returns True if the element is a directory, False otherwise.
-        """
-        return self._dir
 
     def setPageContent(self, content):
         """
         If the current Element is a page, this method updates its text content field.
         """
-        if not self._dir: self._content = content
+        if type(self.getContent()) == str: self._content = content
         else: raise NotAPageException(self._name, + " is not a page.")
 
     def setUrl(self, url):
@@ -129,13 +122,13 @@ class WebSite:
         """
         Given an element, returns True if it is a directory, False otherwise.
         """
-        return elem.isDir()
+        return type(elem.getContent()) == RedBlackTreeMap
 
     def __isPage(self, elem):
         """
         Given an element, returns True if it is a page, False otherwise.
         """
-        return not elem.isDir()
+        return type(elem.getContent()) == str
 
     def __hasDir(self, ndir, cdir):
         """
