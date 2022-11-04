@@ -1,5 +1,4 @@
-from TdP_collections.hash_table.chain_hash_map import ChainHashMap
-from TdP_collections.map.avl_tree import AVLTreeMap
+from TdP_collections.map.red_black_tree import RedBlackTreeMap
 
 
 class CompressedTrie:
@@ -25,7 +24,7 @@ class CompressedTrie:
                     Reference to the parent node of the current node.
                 _endNode : bool
                     Indicates if the node is an end node or not.
-                _occurrenceList : AVLTreeMap
+                _occurrenceList : RedBlackTreeMap
                     If the node is an end node then it owns an occurrence list.
         """
 
@@ -44,7 +43,7 @@ class CompressedTrie:
             self._children = {}
             self._endNode = endNode
             self._parent = parent
-            self._occurrenceList = AVLTreeMap()
+            self._occurrenceList = RedBlackTreeMap()
 
     #-------------------------- utility methods --------------------------
     def _longestCommonPrefix(self, lable, word):

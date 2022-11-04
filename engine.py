@@ -3,7 +3,6 @@ from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
 from max_oriented_heap import MaxOrientedPriorityQueue
 from compressed_trie import CompressedTrie
-from time import time
 
 class Element:
     """ 
@@ -14,7 +13,7 @@ class Element:
 
     def __init__(self, website, name, content = None, url = None):
 
-        self._name = name.swapcase()
+        self._name = name
         self._url = url
 
         if content is not None : 
@@ -62,7 +61,7 @@ class Element:
         If the current Element is a page, this method updates its text content field.
         """
         if type(self.getContent()) == str: self._content = content
-        else: raise NotAPageException(self._name, + " is not a page.")
+        else: raise NotAPageException(self._name + " is not a page.")
 
     def setUrl(self, url):
         self._url = url
@@ -140,8 +139,8 @@ class WebSite:
             raise NotADirectoryException(cdir.getName() + " is not a directory!")
         try:
             currCont = cdir.getContent()
-            dir = currCont[ndir]
-        except KeyError as k: 
+            dir = currCont[ndir.swapcase()]
+        except KeyError: 
             raise DirectoryNotFoundException("Directory " + ndir + " not found!")
         if not self.__isDir(dir): 
             raise NotADirectoryException(dir.getName() + " is not a directory!")
@@ -171,8 +170,8 @@ class WebSite:
             raise NotADirectoryException(cdir.getName() + " is not a directory!")
         try:
             currCont = cdir.getContent()
-            pag = currCont[npag]
-        except KeyError as k:
+            pag = currCont[npag.swapcase()]
+        except KeyError:
             raise PageNotFoundException("Page " + npag + " not found!")
         if not self.__isPage(pag): 
             raise NotAPageException(pag.getName() + " is not a page!")
@@ -214,14 +213,14 @@ class WebSite:
         """
         Returns a string showing the structure of the website.
         """ 
-        return self._root.getName().swapcase() + '\n' + self.__composeSiteString(self._root, 3)
+        return self._root.getName() + '\n' + self.__composeSiteString(self._root, 3)
 
     def insertPage(self, url, content):
         """
         It saves and returns a new page of the website, where url is a string representing the url of 
         the page, and content is a string representing the text contained in the page.
         """
-        path = url.swapcase().split('/') # split the path of the page
+        path = url.split('/') # split the path of the page
         # the url hostname is not the one of the website
         if path[0] != self._root.getName(): 
             raise NotValidURLException(url + " is not valid for this host.")
