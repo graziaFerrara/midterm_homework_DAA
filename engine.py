@@ -66,6 +66,8 @@ class Element:
     def setUrl(self, url):
         self._url = url
 
+    # ----------------- Elements comparison methods -----------------
+
     def __eq__(self,other):
         return self._url == other._url
 
@@ -83,6 +85,12 @@ class Element:
 
     def __ge__(self,other):
         return self._url >= other._url
+
+    # --------------------------- hash -------------------------------
+    def __hash__(self) -> int:
+        return hash(self._url)
+
+# ---------------------- Exception classes ---------------------------
 
 class IndexNotFoundException(Exception):
     pass
@@ -104,6 +112,8 @@ class NotValidURLException(Exception):
 
 class NOOccurrenceListException(Exception):
     pass
+
+# --------------------------------------------------------------------
 
 class WebSite:
 
@@ -190,14 +200,6 @@ class WebSite:
             cdir.insertElementIntoDir(pag)
         return pag
 
-    def getHomePage(self):
-        """
-        Returns the home page of the website at which the current object refers or it throws 
-        an exception if an home page does not exist.
-        """
-        if self._index is None: raise IndexNotFoundException("There's no index.html page!")
-        else: return self._index
-
     def __composeSiteString(self, cdir, n):
         s = ""
         iter = cdir.getContent().inorder()
@@ -208,6 +210,14 @@ class WebSite:
             if self.__isDir(el): 
                 s += self.__composeSiteString(el, n+3)
         return s
+
+    def getHomePage(self):
+        """
+        Returns the home page of the website at which the current object refers or it throws 
+        an exception if an home page does not exist.
+        """
+        if self._index is None: raise IndexNotFoundException("There's no index.html page!")
+        else: return self._index
 
     def getSiteString(self):
         """
@@ -244,6 +254,8 @@ class WebSite:
         Given an Element page returns the WebSite object that page belongs to.
         """
         return page.getWebSite()
+
+# --------------------------------------------------------------------
 
 class InvertedIndex:
 
@@ -285,6 +297,8 @@ class InvertedIndex:
         list = self._trie.searchWord(keyword) 
         if list is None : raise NOOccurrenceListException("Occurrence list not found!")
         return list
+
+# --------------------------------------------------------------------
 
 class SearchEngine:
 
