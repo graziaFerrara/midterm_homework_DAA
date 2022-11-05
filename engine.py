@@ -1,9 +1,11 @@
 import os
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
+from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
 from max_oriented_heap import MaxOrientedPriorityQueue
 from compressed_trie import CompressedTrie
 from compressed_trie_2 import CompressedTrie2
+from trie import Trie
 
 class Element:
     """ 
@@ -267,7 +269,7 @@ class InvertedIndex:
         """
         Creates a new empty InvertedIndex.
         """
-        self._trie = CompressedTrie2()
+        self._trie = Trie()
 
     def addWord(self, keyword):
         """
@@ -313,7 +315,7 @@ class SearchEngine:
         populates the database of the search engine, by initializing and inserting values in all the necessary data structures.
         """
         self._invertedIndex = InvertedIndex()
-        self._database = ChainHashMap()
+        self._database = ProbeHashMap()
 
         currDir = os.getcwd()
         os.chdir(namedir)
@@ -339,20 +341,22 @@ class SearchEngine:
         Searches the k web pages with the maximum number of occurrences of the searched keyword. It returns a string s built as follows: for 
         each of these k pages sorted in descending order of occurrences, the site strings (as defined above) of the site hosting that page is 
         added to s, unless this site has been already inserted.
-        """
-        dict = ChainHashMap()                       # O(1)
+        """                  
         s = ""
-        list = self._invertedIndex.getList(keyword) # O(m)
-        maxHeap = MaxOrientedPriorityQueue(list)    # O(n•log(k))
-        for i in range(k):       #
-            k,v = maxHeap.remove_max()              # O(k•log(k))
+        list = self._invertedIndex.getList(keyword) 
+        maxHeap = MaxOrientedPriorityQueue(list)  
+        length = min(len(maxHeap),k)
+        map = ProbeHashMap(length) 
+        while length > 0:       
+            k,v = maxHeap.remove_max()              
             site = WebSite.getSiteFromPage(v)
             try:
-                if dict[site] > 1: 
-                    dict[site] += 1
+                if map[site] > 1: 
+                    map[site] += 1
             except KeyError:
-                dict[site] = 1
+                map[site] = 1
                 s += site.getSiteString()
+            length -= 1
         return s[:-1]
         
 

@@ -14,7 +14,7 @@ class CompressedTrie2:
         __slots__ = '_children', '_endNode' ,'_occurrenceList' # streamline memory usage
 
         def __init__(self, endNode = False):
-            self._children = ProbeHashMap()
+            self._children = {}
             self._endNode = endNode
             if self._endNode: self._occurrenceList = ProbeHashMap()
 
@@ -69,7 +69,7 @@ class CompressedTrie2:
         else: word += '$'
         wordLen = len(word)
         index = -1
-        # while True:
+
         for k, v in searchNode._children.items():
             if k[0] == word[0]:
                 index = self._lastCommonIndex(k,word)

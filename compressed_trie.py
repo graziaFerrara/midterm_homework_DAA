@@ -1,4 +1,6 @@
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
+from TdP_collections.hash_table.chain_hash_map import ChainHashMap
+from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
 
 class CompressedTrie:
     """Representation of a compressed trie structure.
@@ -35,9 +37,9 @@ class CompressedTrie:
                     endNode : bool
                         Indicates if the node is an end node or not.
             """
-            self._children = {}
+            self._children = ProbeHashMap(57)
             self._endNode = endNode
-            if self._endNode: self._occurrenceList = {}
+            if self._endNode: self._occurrenceList = ProbeHashMap()
 
     #-------------------------- utility methods --------------------------
     def _longestCommonPrefix(self, lable, word):
