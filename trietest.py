@@ -1,4 +1,4 @@
-from compressed_trie import CompressedTrie
+from compressed_trie_2 import CompressedTrie2
 
 # t = CompressedTrie()
 # t.insertWord('see')
@@ -39,7 +39,7 @@ from compressed_trie import CompressedTrie
 # for i in t._root._children['b']._children['id$']._children:
 #     print(i)
 
-t = CompressedTrie()
+t = CompressedTrie2()
 t.insertWord('bear')
 t.insertWord('bell')
 t.insertWord('bid')
