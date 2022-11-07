@@ -14,7 +14,7 @@ out2=se.search("design", 10)
 end=time()-start
 
 if out1 != OUT_1:
-    print("FAIL")
+    print("FAIL")   
 elif out2 != OUT_2:
     print("FAIL")
 else:

@@ -1,10 +1,9 @@
 import os
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
-from TdP_collections.hash_table.chain_hash_map import ChainHashMap
-from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
 from max_oriented_heap import MaxOrientedPriorityQueue
-from compressed_trie import CompressedTrie
+from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
 from compressed_trie_2 import CompressedTrie2
+from compressed_trie_3 import CompressedTrie3
 from trie import Trie
 
 class Element:
@@ -785,7 +784,7 @@ class SearchEngine:
             Name of the directory from which read all the files.
         """
         self._invertedIndex = InvertedIndex()
-        self._database = {}
+        self._database = ProbeHashMap()
 
         currDir = os.getcwd()
         os.chdir(namedir)
@@ -795,8 +794,7 @@ class SearchEngine:
                 with open (file, 'r') as f:
                     firstLine = f.readline()
                     content = f.read()
-                    splittedLine = firstLine.split('/')
-                    hostname = splittedLine[0]
+                    hostname = firstLine.split('/')[0]
                     try:
                         page = self._database[hostname].insertPage(firstLine[:-1], content)
                     except KeyError:
@@ -829,7 +827,7 @@ class SearchEngine:
         list = self._invertedIndex.getList(keyword) 
         maxHeap = MaxOrientedPriorityQueue(list)  
         length = min(len(maxHeap),k)
-        map = {}
+        map = ProbeHashMap(length)
         while length > 0:       
             k,v = maxHeap.remove_max()              
             site = WebSite.getSiteFromPage(v)
@@ -840,8 +838,4 @@ class SearchEngine:
                 map[site] = 1
                 s += site.getSiteString()
             length -= 1
-        return s[:-1]
-        
-
-
-    
+        return s[:-1]   

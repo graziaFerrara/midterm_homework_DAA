@@ -1,26 +1,45 @@
 from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
 from TdP_collections.hash_table.chain_hash_map import ChainHashMap
-from TdP_collections.map.red_black_tree import RedBlackTreeMap
-from TdP_collections.map.avl_tree import AVLTreeMap
 
 class CompressedTrie2:
+    """
+    A class to model a compressed Trie.
+
+    Attributes
+    ----------
+    _root : _Node
+        Root node of the Trie.
+    """
 
     __slots__ = '_root' # streamline memory usage
 
     #-------------------------- nested _Node class --------------------------
     
     class _Node:
+        """
+        A class to model a node of the compressed trie.
+
+        Attributes
+        ----------
+        _children : dict
+            Collection containing the children of a _Node.
+        _endNode : bool
+            It is True if the _Node is an end node, False otherwise.
+        _occurrenceList : dict
+            Collection containing the pages in which the word occurs.
+        """
 
         __slots__ = '_children', '_endNode' ,'_occurrenceList' # streamline memory usage
 
         def __init__(self, endNode = False):
             self._children = {}
             self._endNode = endNode
-            if self._endNode: self._occurrenceList = ProbeHashMap()
+            if self._endNode: self._occurrenceList = {}
 
     #------------------------------------------------------------------------
 
     def __init__(self):
+        """Initialize the Standard Trie, creating an empty trie with just the root."""
         self._root = self._Node()
 
     def _lastCommonIndex(self, word, lable):
@@ -34,7 +53,21 @@ class CompressedTrie2:
         return index
 
     def _searchNode(self, word):
-        """Returns the node in which the word should end."""
+        """
+        Method to search the end node of the word if exists, or the last present node.
+
+        Parameters
+        ----------
+        word : str
+            the word to be searched in the Trie
+
+        Returns
+        -------
+        _Node
+            the node containing the last character of the word present in the trie
+        int
+            the index of the first character of the word not present in the trie
+        """
         word += '$'
         node = self._root
         length = len(word)
@@ -57,11 +90,32 @@ class CompressedTrie2:
                 length = len(word) 
 
     def searchWord(self, word):
+        """
+        Method to search a given word into the Trie.
+
+        Parameters
+        ----------
+        word : str
+            word to be searched in the trie
+
+        Returns
+        -------
+        dict | None
+            depending on the node having an occurrence list or not
+        """
         node = self._searchNode(word)[0]
         if node._endNode: return node._occurrenceList
         else: return None
 
     def insertWord(self, word):
+        """
+        Inserts a given word into the trie.
+
+        Parameters
+        ----------
+        word : str
+            The word to be inserted in the Trie.
+        """
         
         searchNode, last = self._searchNode(word)
 
