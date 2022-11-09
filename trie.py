@@ -7,7 +7,18 @@ class Trie:
     Attributes
     ----------
     _root : _Node
-        Root node of the Standard Trie.
+        Root of the Standard Trie.
+
+    Methods
+    -------
+    _searchNode
+        A utility method for the search and insert methods, to retrieve the last node of the 
+        word containing the occurrence list if it is present, or the node in which the 
+        insertion has to be done otherwise.
+    searchWord
+        A public method to search a given word into the Compressed Trie.
+    insertWord
+        A public method to insert a given word into the Compressed Trie if it is not present.
     """
 
     __slots__ = '_root' # streamline memory usage
@@ -16,15 +27,15 @@ class Trie:
     
     class _Node:
         """
-        A class to model the node of a Standard Trie.
+        A class to model a node of a Standard Trie.
         
         Attributes
         ----------
-        _children : dict
+        _children : dictionary
             Collection containing the children of a _Node.
         _endNode : bool
             It is True if the _Node is an end node, False otherwise.
-        _occurrenceList : dict
+        _occurrenceList : dictionary
             Collection containing the pages in which the word occurs.
         """
 
@@ -43,19 +54,29 @@ class Trie:
 
     def _searchNode(self, word):
         """
-        Method to search the end node of the word if exists, or the last present node.
+        A utility method for the search and insert methods, to retrieve the last node of the 
+        word containing the occurrence list if it is present, or the node in which the 
+        insertion has to be done otherwise.
 
         Parameters
         ----------
         word : str
-            the word to be searched in the Trie
+            The word to be searched into the trie.
 
         Returns
         -------
         _Node
-            the node containing the last character of the word present in the trie
+            The last node composing the word or the last node linked to an edge having the lable 
+            belonging to the word.
         int
-            the index of the first character of the word not present in the trie
+            Index of the last character of the original word present into the trie.
+
+        TIME COMPLEXITY
+        ---------------
+        O(len(word)) expected and amortized
+            In the worst case this method iterates all over the characters of the given word once and
+            since the accesses to the dictionary are O(1) expected and amortized, we can conclude the 
+            time complexity is the one reported above.
         """
         node = self._root
         i = 0
@@ -74,29 +95,40 @@ class Trie:
 
     def searchWord(self, word):
         """
-        Method to search a given word into the Trie.
+        A public method to search a given word into the Compressed Trie.
 
         Parameters
         ----------
         word : str
-            word to be searched in the trie
+            The word to be searched into the trie.
 
         Returns
         -------
-        dict | None
-            depending on the node having an occurrence list or not
+        dictionary | None
+            Returns the _occurrenceList if it is present in the node, None otherwise.
+
+        TIME COMPLEXITY
+        ---------------
+        O(len(word)) expected and amortized
+            It is the same of the _searchNode method which is called inside.
         """
         node = self._searchNode(word)[0]
         return node._occurrenceList if node._endNode else None
 
     def insertWord(self, word):
         """
-        Inserts a given word into the trie.
+        A public method to insert a given word into the Compressed Trie if it is not present.
 
         Parameters
         ----------
         word : str
-            The word to be inserted in the Trie.
+            The word to be searched into the trie.
+
+        TIME COMPLEXITY
+        ---------------
+        O(len(word)) expected and amortized
+            It is the same of the _searchNode method which is called inside.
+
         """
         node, index = self._searchNode(word)
         if index < len(word) :

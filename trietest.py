@@ -1,7 +1,7 @@
 from trie import Trie
-from compressed_trie_3 import CompressedTrie3
+from compressed_trie_4 import CompressedTrie4
 
-t = CompressedTrie3()
+t = CompressedTrie4()
 # t.insertWord('see')
 # t.insertWord('bear')
 # t.insertWord('sell')

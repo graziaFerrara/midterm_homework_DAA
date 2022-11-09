@@ -2,9 +2,7 @@ import os
 from TdP_collections.map.red_black_tree import RedBlackTreeMap
 from max_oriented_heap import MaxOrientedPriorityQueue
 from TdP_collections.hash_table.probe_hash_map import ProbeHashMap
-from compressed_trie_2 import CompressedTrie2
-from compressed_trie_3 import CompressedTrie3
-from trie import Trie
+from compressed_trie_4 import CompressedTrie4
 
 class Element:
     """ 
@@ -17,7 +15,7 @@ class Element:
     _content : str | RedBlackTreeMap
         Content of the Element.
     _website : WebSite
-        Website to which the Element belongs to.
+        Website to which the Element belongs.
     _url : str | None
         URL of the Element.
 
@@ -28,13 +26,13 @@ class Element:
     getName()
         Returns the name of the Element.
     getUrl()
-        Returns the url of the Element if specified.
+        Returns the url of the Element, if present.
     getContent()
         Returns the content of the Element.
     insertElementIntoDir()
         Inserts a given element into the current directory (if the Element is a directory).
     setPageContent()
-        Inserts a content into the current Element, if the current Element is a page.
+        Inserts a content into the current Element (if the current Element is a page).
     setUrl()
         Sets the url of the current element.
     """
@@ -77,6 +75,10 @@ class Element:
         -------
         WebSite 
             The WebSite the current Element belongs to.
+
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         return self._website
 
@@ -88,6 +90,10 @@ class Element:
         -------
         str
             The name of the current Element.
+        
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         return self._name
 
@@ -104,6 +110,10 @@ class Element:
         ------
         URLNotFoundException
             If the url is None.
+
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         if self._url is None: 
             raise URLNotFoundException("There's no URL in the current Element")
@@ -117,6 +127,10 @@ class Element:
         -------
         str | RedBlackTreeMap
             The content of the Element.
+
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         return self._content
 
@@ -134,11 +148,17 @@ class Element:
         ------
         NotADirectoryException
             If the current Element is not a directory.
+
+        TIME COMPLEXITY
+        ---------------
+        O(log(k))
+            Since it is necessary to insert in a RedBlackTreeMap and its insertion is in
+            the O(log(k)) order, if k is the number of Elements contained in the directory.
         """
         if type(self.getContent()) == RedBlackTreeMap: self._content[elem._name.swapcase()] = elem
         else: raise NotADirectoryException(self._name + " is not a directory.")
 
-    def setPageContent(self, content):
+    def setPageContent(self, content: str):
         """
         Public mutator method.
         If the current Element is a page, this method updates its text content field.
@@ -152,11 +172,15 @@ class Element:
         ------
         NotAPageException
             If the current Element is not a page.
+
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         if type(self.getContent()) == str: self._content = content
         else: raise NotAPageException(self._name + " is not a page.")
 
-    def setUrl(self, url):
+    def setUrl(self, url: str):
         """
         Public mutator method.
 
@@ -164,6 +188,10 @@ class Element:
         ----------
         url : str
             Sets the url of the current Element.
+
+        TIME COMPLEXITY
+        ---------------
+        O(1)
         """
         self._url = url
 
@@ -494,7 +522,7 @@ class WebSite:
             cdir.insertElementIntoDir(pag)
         return pag
 
-    def __composeSiteString(self, cdir, n):
+    def __composeSiteString(self, cdir: Element, n: int):
         """
         Recursive utility method whose aim is to build the string which describes the 
         structure of the site.
@@ -597,7 +625,8 @@ class WebSite:
             is O(log(k)). While in a general case, first it is necessary to search/create
             all the new Element's parent directories and then insert the new page.
             This requires l (number of anchestors of the page) times a logarithmic
-            time proportional to the content of each directory, which is k.
+            time proportional to the content of each directory, which is k. So the total 
+            time spent is O(l•log(k)).
         """
         path = url.split('/') 
         length = len(path) - 1
@@ -668,7 +697,7 @@ class InvertedIndex:
         ---------------
         O(1)
         """
-        self._trie = Trie()
+        self._trie = CompressedTrie4()
 
     def addWord(self, keyword):
         """
@@ -682,7 +711,7 @@ class InvertedIndex:
         TIME COMPLEXITY
         ---------------
         O(len(keyword))
-            The insertion in the standard Trie, takes an expected and amortized time 
+            The insertion in the Trie, takes an expected and amortized time 
             proportional to the length of the word to be inserted.
         """
         self._trie.insertWord(keyword)
@@ -742,7 +771,7 @@ class InvertedIndex:
         ---------------
         O(len(keyword))
             The expected and amortized to return the occurrence list associated to a given keyword, 
-            which is the time spent by the search method in the standard trie, is proportional to 
+            which is the time spent by the search method in the trie, is proportional to 
             the length of the keyword.
         """
         list = self._trie.searchWord(keyword) 
@@ -760,8 +789,8 @@ class SearchEngine:
     ----------
     _invertedIndex : InvertedIndex
         Inverted Index of the search engine.
-    _database : dictionary
-        Collection of the WebSites.
+    _database : ProbeHashMap
+        Collection of the WebSites where the key is the hostname and the value is the WebSite object.
 
     Methods
     -------
@@ -789,12 +818,14 @@ class SearchEngine:
         currDir = os.getcwd()
         os.chdir(namedir)
 
+        # read from files
         for file in os.listdir():
             if file.endswith(".txt"):
                 with open (file, 'r') as f:
                     firstLine = f.readline()
                     content = f.read()
                     hostname = firstLine.split('/')[0]
+                    # populate the database and the inverted index
                     try:
                         page = self._database[hostname].insertPage(firstLine[:-1], content)
                     except KeyError:
@@ -824,10 +855,14 @@ class SearchEngine:
             in order of number of occurrences and without duplicates.
         """                  
         s = ""
-        list = self._invertedIndex.getList(keyword) 
+        list = self._invertedIndex.getList(keyword) # occurrence list of the given keyword
         maxHeap = MaxOrientedPriorityQueue(list)  
+        # I want to use a max-oriented heap, built from the _occurrenceList dictionary in order to be 
+        # able to extract the max at each iteration
         length = min(len(maxHeap),k)
         map = ProbeHashMap(length)
+        # the ProbeHashMap is a utility structure used to deal with the problem of duplicates 
+        # in the construction of the output string
         while length > 0:       
             k,v = maxHeap.remove_max()              
             site = WebSite.getSiteFromPage(v)
